@@ -64,8 +64,8 @@ export function useTasks() {
     updateMutation,
     deleteMutation,
     refetch: tasksQuery.refetch,
-    isLoading: computed(() => tasksQuery.isLoading),
-    isError: computed(() => tasksQuery.isError),
-    data: computed(() => tasksQuery.data ?? []),
+    isLoading: tasksQuery.isLoading,
+    isError: tasksQuery.isError,
+    data: computed(() => tasksQuery.data.value ?? []),
   }
 }

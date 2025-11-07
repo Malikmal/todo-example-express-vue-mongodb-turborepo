@@ -12,6 +12,7 @@ export class TaskController {
 
       return res.status(200).json({ data: tasks });
     } catch (error) {
+      throw error;
       console.error("Error fetching tasks:", error);
       return res.status(500).json({
         error: "Internal Server Error",
@@ -24,6 +25,8 @@ export class TaskController {
     try {
       const { title, description } = request.body;
       const userId = request.user?.id;
+
+      console.log("Creating task with data:", { title, description, userId });
 
       if (!title) {
         return res.status(400).json({
@@ -40,12 +43,16 @@ export class TaskController {
         },
       });
 
+      console.log("Task created successfully:", task);
       return res.status(201).json({ data: task });
     } catch (error) {
+      throw error;
       console.error("Error creating task:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
       return res.status(500).json({
         error: "Internal Server Error",
         message: "Failed to create task",
+        details: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -66,6 +73,7 @@ export class TaskController {
 
       return res.status(200).json({ data: task });
     } catch (error) {
+      throw error;
       console.error("Error updating task:", error);
       return res.status(500).json({
         error: "Internal Server Error",
@@ -84,6 +92,7 @@ export class TaskController {
 
       return res.status(204).send();
     } catch (error) {
+      throw error;
       console.error("Error deleting task:", error);
       return res.status(500).json({
         error: "Internal Server Error",

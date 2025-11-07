@@ -15,7 +15,7 @@ datasource db {
 
 // Better Auth Models
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @map("_id")
   name          String?
   email         String    @unique
   emailVerified Boolean   @default(false)
@@ -25,29 +25,30 @@ model User {
   
   accounts      Account[]
   sessions      Session[]
+  tasks         Task[]
   
   @@map("user")
 }
 
 model Session {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @map("_id")
   expiresAt DateTime
   token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
-  userId    String   @db.ObjectId
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("session")
 }
 
 model Account {
-  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  id                String  @id @map("_id")
   accountId         String
   providerId        String
-  userId            String  @db.ObjectId
+  userId            String
   accessToken       String?
   refreshToken      String?
   idToken           String?
@@ -63,7 +64,7 @@ model Account {
 }
 
 model Verification {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String   @id @map("_id")
   identifier String
   value      String
   expiresAt  DateTime
@@ -75,13 +76,14 @@ model Verification {
 
 // Todo Models
 model Task {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(cuid()) @map("_id")
   title       String
   description String?
   completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  userId      String?  @db.ObjectId
-  
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("task")
 }

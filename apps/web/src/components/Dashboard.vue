@@ -109,34 +109,37 @@ import TaskForm from '../components/TaskForm.vue';
 const router = useRouter();
 const { user, signOut } = useAuth();
 const { 
-  tasks, 
-  loading: tasksLoading, 
-  error: tasksError, 
-  fetchTasks, 
-  createTask, 
-  updateTask, 
-  deleteTask, 
-  toggleTaskCompletion 
+  data: tasksData, 
+  isLoading: tasksLoading, 
+  isError, 
+  refetch: fetchTasks,
+  createMutation,
+  updateMutation,
+  deleteMutation
 } = useTasks();
+
+// Unwrap the computed for cleaner access
+const tasks = computed(() => (tasksData.value as Task[] | undefined) || []);
+const tasksError = computed(() => isError.value ? 'Failed to load tasks' : null);
 
 const showCreateForm = ref(false);
 const editingTask = ref<Task | null>(null);
 const filter = ref<'all' | 'pending' | 'completed'>('all');
 
 const completedTasks = computed(() => 
-  tasks.value.filter(task => task.completed).length
+  tasks.value.filter((task: Task) => task.completed).length
 );
 
 const pendingTasks = computed(() => 
-  tasks.value.filter(task => !task.completed).length
+  tasks.value.filter((task: Task) => !task.completed).length
 );
 
 const filteredTasks = computed(() => {
   switch (filter.value) {
     case 'pending':
-      return tasks.value.filter(task => !task.completed);
+      return tasks.value.filter((task: Task) => !task.completed);
     case 'completed':
-      return tasks.value.filter(task => task.completed);
+      return tasks.value.filter((task: Task) => task.completed);
     default:
       return tasks.value;
   }
@@ -161,7 +164,13 @@ const handleSignOut = async () => {
 
 const handleToggleTask = async (taskId: string) => {
   try {
-    await toggleTaskCompletion(taskId);
+    const task = (tasks.value || []).find((t: Task) => t.id === taskId);
+    if (task) {
+      await updateMutation.mutateAsync({ 
+        id: taskId, 
+        updates: { completed: !task.completed } 
+      });
+    }
   } catch (error) {
     console.error('Failed to toggle task:', error);
   }
@@ -175,7 +184,7 @@ const handleEditTask = (task: Task) => {
 const handleDeleteTask = async (taskId: string) => {
   if (confirm('Are you sure you want to delete this task?')) {
     try {
-      await deleteTask(taskId);
+      await deleteMutation.mutateAsync(taskId);
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
@@ -185,9 +194,12 @@ const handleDeleteTask = async (taskId: string) => {
 const handleTaskSubmit = async (data: { title: string; description?: string }) => {
   try {
     if (editingTask.value) {
-      await updateTask(editingTask.value.id, data);
+      await updateMutation.mutateAsync({ 
+        id: editingTask.value.id, 
+        updates: data 
+      });
     } else {
-      await createTask(data.title, data.description);
+      await createMutation.mutateAsync(data);
     }
     handleCancelForm();
   } catch (error) {
