@@ -1,0 +1,64 @@
+### Better Auth Health Check
+GET http://localhost:3000/api/auth/ok
+
+### Test Current Session (should return 401 if not authenticated)
+GET http://localhost:3000/api/me
+
+### Test Protected Route (should return 401 if not authenticated)
+GET http://localhost:3000/api/protected
+
+### Test Public Route (accessible without auth)
+GET http://localhost:3000/api/public
+
+### Sign Up New User
+POST http://localhost:3000/api/auth/sign-up
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "securepassword123",
+  "name": "Test User"
+}
+
+### Sign In User
+POST http://localhost:3000/api/auth/sign-in/email
+Content-Type: application/json
+Origin: localhost:3000
+
+{
+  "email": "test@example.com",
+  "password": "securepassword123"
+}
+
+### Get Session After Sign In (use the session cookie from sign-in response)
+GET http://localhost:3000/api/me
+
+### Test Protected Route After Sign In
+GET http://localhost:3000/api/protected
+
+### Sign Out User
+POST http://localhost:3000/api/auth/sign-out
+
+### Get All Tasks
+GET http://localhost:3000/api/tasks
+
+### Create New Task (requires authentication)
+POST http://localhost:3000/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Learn Prisma with Better Auth",
+  "description": "Implement CRUD operations using Prisma and Better Auth"
+}
+
+### Update Task (requires authentication)
+PUT http://localhost:3000/api/tasks/{{taskId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Task Title",
+  "completed": true
+}
+
+### Delete Task (requires authentication)
+DELETE http://localhost:3000/api/tasks/{{taskId}}
