@@ -3,6 +3,7 @@ import cors from "cors";
 import { errorHandler } from "./middlewares/error.middleware";
 import { databaseConnection } from "./config/database";
 import { env } from "./config/env";
+import taskRoute from "./routes/task.route";
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.use(errorHandler);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
+
+app.use(taskRoute);
 
 // Server lifecycle
 async function startServer() {
